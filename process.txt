@@ -1,0 +1,13 @@
+1. Every hour, run job - Run at 55 past the hour
+2. Download RSS Feed XML
+3. Parse XML for all <item><link> elements, copying the whole file
+4. Mark each <item><link> tag body, for later replacement
+5. Check if link exists in DynamoDb table. If it does, exit, otherwise:
+6. Download the link from the <item><link> tag body
+6a. Convert to .wav file - "lame --decode <file1.mp3> <file2.wav>"
+7. Run Sox command on mp3 file, and make new mp3 file. "sox <file1.wav> <file2.wav> compand 0.3,1 6:-70,-60,-20 -5 -90 0.2"
+7a. Convert to mp3: "lame -b 192 <file1.wav> <file2.mp3>"
+8. Upload to publically accessible s3 storage location
+9. Host RSS feed with replaced mp3 files from s3 location in #8.
+
+

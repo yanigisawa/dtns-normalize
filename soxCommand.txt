@@ -1,0 +1,2 @@
+~/Downloads/sox-14.4.2/sox technicallyYoungAtHeart.wav dtns.wav compand 0.3,1 6:-70,-60,-20 -5 -90 0.2
+
