@@ -94,7 +94,7 @@ def uploadFile(fileName):
     s3.Object(_bucketName, fileName).put(Body=open(fullPath, 'rb'))
 
 def cleanUpLocalFiles():
-    directory = "/home/jalexander/src/dtns-normalizer"
+    directory = "/home/jalexander/src/dtns-normalize"
     test = os.listdir(directory)
 
     for item in test:
@@ -104,19 +104,27 @@ def cleanUpLocalFiles():
 def main():
     r = downloadRss()
     p = DtnsParser()
-    p.feed(r.text)
+    rss = r.text
+    p.feed(rss)
     existing = getExistingFiles()
     for rssFile in p.rssLinks.keys():
         rssName = getMp3FileNameFromUrl(rssFile)
+        baseName = os.path.splitext(os.path.basename(rssName))[0]
+        s3Link = "https://s3.amazonaws.com/dtns-normalize/{0}_normalized.mp3"
+        newLink = s3Link.format(baseName)
+        rss = rss.replace(rssFile, newLink)
         if rssName not in existing:
             print("convert file {0}".format(rssName))
-            fileName =  convertFile(rssFile)
+            fileName = convertFile(rssFile)
             print("Uploading File {0}".format(fileName))
             uploadFile(fileName)
-            cleanUpLocalFiles()
-        else:
-            print("Found {0} in s3, do not reconvert".format(rssName))
 
+    cleanUpLocalFiles()
+    with open("feed.html", "w") as f:
+        f.write(rss.encode("utf-8"))
+
+    uploadFile("feed.html")
+        
 
 if __name__ == "__main__":
     main()
